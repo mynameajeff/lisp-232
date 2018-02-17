@@ -3,9 +3,9 @@ stack = []
 
 
 def empty():
-	global stack
+    global stack
 
-	stack = []
+    stack = []
 
 
 def stringify(gpt_return):
