@@ -30,7 +30,9 @@ def stringify(gpt_return):
             stringify(item)
             stack.append(")")
     
-    return ' '.join(stack).replace("( ", "(").replace(" )", ")")
+    return ' '.join(stack)  \
+        .replace("( ", "(") \
+        .replace(" )", ")")
 
 
 def gpt(match):
