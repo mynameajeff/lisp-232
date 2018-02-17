@@ -1,5 +1,6 @@
 
-import stack
+from state import *
+
 import par
 
 class Transpiler:
@@ -10,21 +11,9 @@ class Transpiler:
             par.get_parse_tree(file)
         )
 
-        self.headers = {
-            "<stdio.h>" : False
-        }
-
         self.file_name = file.split(".")[0] + ".c"
 
         self.counter = 1
-
-        self.new_file_data = [
-            "\nint main() {\n",
-            "\n\n    return 0;"
-            "\n}\n"
-        ]
-
-        self.variables = {}
 
         self.inner_loop()
 
@@ -34,90 +23,32 @@ class Transpiler:
         #expects name(.lisp)
         with open(self.file_name, "w") as file:
 
-            for header in self.headers:
+            for header in stored_values.headers:
 
-                if self.headers[header]:
+                if stored_values.headers[header]:
                     file.write("\n#include %s" % header)
 
             file.write("\n")
 
-            for contents in self.new_file_data:
+            for contents in stored_values.new_file_data:
                 file.write(contents)
 
 
     def inner_var(self, contents):
 
-        if isinstance(contents[1], str):
+        stored_values.new_file_data.insert(
+            self.counter, 
+            get_val_line(contents)
+        )
 
-            if isinstance(contents[2], tuple):
-                place_holder = stack.stringify(stack.gpt(contents[2]))
-                evaluated_ph = eval(place_holder)
-            else:
-                place_holder = contents[2]
-
-                if place_holder.is_integer():
-                    place_holder = int(place_holder)
-                    
-                evaluated_ph = place_holder
-
-            if isinstance(evaluated_ph, int):
-                self.variables[contents[1]] = "int"
-                type_var = "int"
-
-            elif isinstance(evaluated_ph, float):
-                self.variables[contents[1]] = "float"
-                type_var = "float"
-
-            stack.empty()
-
-            line_of_code = "\n    {0:s} {1:s} = {2:s};".format(
-                type_var,
-                contents[1], 
-                str(place_holder)
-            )
-
-            self.new_file_data.insert(
-                self.counter, 
-                line_of_code
-            )
-
-            self.counter += 1
-
-        else:
-            raise ValueError("Invalid variable name given.")
+        self.counter += 1
 
 
     def inner_put(self, contents, end_char = ""):
 
-        if not self.headers["<stdio.h>"]:
-            self.headers["<stdio.h>"] = True    
-        
-        if isinstance(contents[1], str):
-
-            if contents[1] in self.variables:
-                
-                if self.variables[contents[1]] == "int":
-                    format_value = "%d"
-
-                if self.variables[contents[1]] == "float":
-                    format_value = "%f"
-
-            else:
-                raise ValueError("Invalid variable \"%s\" passed to put keyword." % contents[1])
-
-            line_of_code = "\n    printf(\"{0:s}{1:s}\", {2:s});".format(
-                format_value,
-                end_char, 
-                contents[1]
-            )
-
-        else:
-
-            line_of_code = "\n    printf(\"{0:s}\");".format(contents[1][1] + end_char)
-
-        self.new_file_data.insert(
+        stored_values.new_file_data.insert(
             self.counter, 
-            line_of_code
+            get_put_line(contents, end_char)
         )
 
         self.counter += 1
@@ -131,11 +62,11 @@ class Transpiler:
 
                 self.inner_var(contents)
 
-            if contents[0] == "put":
+            elif contents[0] == "put":
 
                 self.inner_put(contents)
 
-            if contents[0] == "putln":
+            elif contents[0] == "putln":
 
                 self.inner_put(contents, end_char = "\\n")
 
