@@ -9,6 +9,6 @@
 
 (putln "Hello, World!")
 
-(put 5)
+(putln 5)
 
-(putln (+ (* 2 2) (/ 3 5)))
+(put (+ (* 2 2) (/ 3 5)))
