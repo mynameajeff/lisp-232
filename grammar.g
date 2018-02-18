@@ -1,5 +1,5 @@
 
-expr: "(" operator operand_placeholder operand ")"
+expr: "(" operator operand operand ")"
     | "(" keywords_single operand_single ")"
 
 operator: calculation
@@ -8,7 +8,8 @@ operator: calculation
 
 operand_single: (variable_name 
               | string
-              | num)
+              | num
+              | expr)
 
 ?calculation: /(\+|-|\/|\*)/
 
@@ -17,18 +18,16 @@ operand_single: (variable_name
 ?keywords_single: "put"   -> put
                 | "putln" -> putln
 
-operand_placeholder: operand
-                   | variable_name
-
 ?variable_name: /\$[A-Za-z_][A-Za-z0-9_]*/ -> variable
 
 operand: (expr 
-       | num)
+       | num
+       | variable_name)
 
 num: signed 
 
 string: STR_CONST
-STR_CONST: /\"[A-Za-z0-9\\\/\.!?~, ]+\"/
+STR_CONST: /\"([A-Za-z0-9\\\/\.!?~, ]+)*\"/
 
 signed: SIGNED_NUMBER
 
