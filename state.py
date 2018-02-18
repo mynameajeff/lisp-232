@@ -99,6 +99,8 @@ def get_put_line(contents, end_char):
                 place_holder
             )
 
+            stack.empty()
+
     return line_of_code
 
 
