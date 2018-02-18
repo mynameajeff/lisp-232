@@ -19,7 +19,7 @@ class tran(lark.Transformer):
         return ("str_const::", str(n[0][1:-1]))
 
     expr = tuple
-    
+
     operand_single = lambda _, n: n[0]
 
     putln   = lambda self, _: "putln"
@@ -36,11 +36,12 @@ with open("grammar.g") as file:
 script_parser = lark.Lark(
     script_grammar,
     start  = "expr",
-    parser = "lalr"
+    parser = "lalr",
+    transformer = tran()
 )
 
 
-def get_parse_tree(file_path):
+def get_data(file_path):
 
     with open(file_path) as file:
         script_code = [
@@ -64,15 +65,3 @@ def get_parse_tree(file_path):
 
     return expression_list
 
-
-def get_data(parse_tree):
-
-    cleaned_tree = []
-
-    local_transformer = tran()
-
-    for item in parse_tree:
-
-        cleaned_tree.append(local_transformer.transform(item))
-
-    return cleaned_tree
