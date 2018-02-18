@@ -8,3 +8,7 @@
 (put "Hello, World!\n")
 
 (putln "Hello, World!")
+
+(putln 5)
+
+(put (+ (* 2 2) (/ 3 5)))

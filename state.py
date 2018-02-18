@@ -23,6 +23,19 @@ def get_indent():
     return stored_values.indent_level * "    "
 
 
+def get_eval_type(evaluated_ph, literal_type = False):
+
+    if literal_type:
+        types_local = ["int", "float"]
+
+    else:
+        types_local = ["%d", "%f"]
+
+    if   isinstance(evaluated_ph, int):   return types_local[0]
+
+    elif isinstance(evaluated_ph, float): return types_local[1]
+
+
 def get_put_line(contents, end_char):
 
     if not stored_values.headers["<stdio.h>"]:
@@ -48,9 +61,43 @@ def get_put_line(contents, end_char):
             contents[1]
         )
 
-    else:
+    elif isinstance(contents[1], float):
+        
+        if contents[1].is_integer():
+            contents_final = int(contents[1])
+            format_value = "%d"
+        else:
+            contents_final = contents[1]
+            format_value = "%f"
 
-        line_of_code = "\n{0:s}printf(\"{1:s}\");".format(get_indent(), contents[1][1] + end_char)
+        line_of_code = "\n{0:s}printf(\"{1:s}{2:s}\", {3});".format(
+            get_indent(),
+            format_value,
+            end_char,
+            contents_final
+        )
+
+    elif isinstance(contents[1], tuple):
+
+        if contents[1][0] == "str_const::":
+
+            line_of_code = "\n{0:s}printf(\"{1:s}\");".format(
+                get_indent(), 
+                contents[1][1] + end_char
+            )
+
+        else:
+
+            place_holder = stack.stringify(stack.gpt(contents[1]))
+            
+            type_var = get_eval_type(eval(place_holder))
+
+            line_of_code = "\n{0:s}printf(\"{1:s}{2:s}\", {3:s});".format(
+                get_indent(),
+                type_var,
+                end_char,
+                place_holder
+            )
 
     return line_of_code
 
@@ -71,13 +118,15 @@ def get_val_line(contents):
                 
             evaluated_ph = place_holder
 
-        if isinstance(evaluated_ph, int):
-            stored_values.variables[contents[1]] = "int"
-            type_var = "int"
+        if isinstance(place_holder, str):
+            type_var = eval(place_holder)
+        
+        else:
+            type_var = place_holder
 
-        elif isinstance(evaluated_ph, float):
-            stored_values.variables[contents[1]] = "float"
-            type_var = "float"
+        type_var = get_eval_type(type_var, literal_type = True)
+
+        stored_values.variables[contents[1]] = type_var
 
         stack.empty()
 
