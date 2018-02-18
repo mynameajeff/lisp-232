@@ -16,12 +16,10 @@ class tran(lark.Transformer):
         return str(n[0])[1:]
 
     def string(self, n):
-        return ("str_const", str(n[0][1:-1]))
+        return ("str_const::", str(n[0][1:-1]))
 
     expr = tuple
-
-    operand_placeholder = lambda _, n: n[0]
-
+    
     operand_single = lambda _, n: n[0]
 
     putln   = lambda self, _: "putln"
