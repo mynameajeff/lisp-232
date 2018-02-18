@@ -7,9 +7,7 @@ class Transpiler:
 
     def __init__(self, file):
 
-        self.file_data = par.get_data(
-            par.get_parse_tree(file)
-        )
+        self.file_data = par.get_data(file)
 
         self.file_name = file.split(".")[0] + ".c"
 
